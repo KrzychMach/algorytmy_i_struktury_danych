@@ -1,3 +1,4 @@
+# Krzysztof Mach
 from zad1testy import Node, runtests
 
 
