@@ -1,4 +1,4 @@
-# Krzysztof Mach
+# Krzysztof Mach pogchamp
 from zad1testy import Node, runtests
 
 
