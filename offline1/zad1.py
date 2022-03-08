@@ -51,23 +51,18 @@ def SortH(p, k):
         return p
     elif p.next is None:
         return p
-    temp_node = p
-    list_length = 0
-    while temp_node is not None:
-        list_length += 1
-        temp_node = temp_node.next
-    min_heap = create_heap(p, min(k + 1, list_length))
+    min_heap = create_heap(p, k + 1)
     for i in range(min_heap.remaining):
         p = p.next
     new_list_head = None
     curr_node = None
     while min_heap.remaining > 0:
-        if new_list_head is None:
-            curr_node = min_heap.get_min()
-            new_list_head = curr_node
-        else:
+        if new_list_head is not None:
             curr_node.next = min_heap.get_min()
             curr_node = curr_node.next
+        else:
+            curr_node = min_heap.get_min()
+            new_list_head = curr_node
         min_heap.replace_last_node(p)
         if p is not None:
             p = p.next
@@ -77,10 +72,12 @@ def SortH(p, k):
 
 # Tworzy listę instancji klasy Node o długości size zaczynając od node, przekazuje ją do konstruktora MinHeap
 def create_heap(node, size):
-    heap_template = [None for i in range(size)]
+    heap_template = []
     for i in range(size):
-        heap_template[i] = node
+        heap_template.append(node)
         node = node.next
+        if node is None:
+            break
     return MinHeap(heap_template)
 
 
