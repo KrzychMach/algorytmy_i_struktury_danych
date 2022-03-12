@@ -48,7 +48,7 @@ def replace_root_node(heap, new):
     else:
         heap[0] = heap[len(heap) - 1]
         del heap[len(heap) - 1]
-    heapify(heap, 0)  # "Naprawiam" cały heap
+    heapify(heap, 0)  # "Naprawiam" heap
 
 
 def heap_sort(p, k):
