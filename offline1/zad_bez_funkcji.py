@@ -43,7 +43,7 @@ def SortH(p, k):
         if new_list_head is not None:  # dołączam najmniejszy element do zwracanej listy
             curr_node.next = heap[0]
             curr_node = curr_node.next
-        else:                          #
+        else:                          # W wypadku, gdy zwracana lista pusta
             curr_node = heap[0]
             new_list_head = curr_node
         # Wstawiam następny Node do heap
