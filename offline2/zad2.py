@@ -1,3 +1,5 @@
+# Krzysztof Mach
+
 from zad2testy import runtests
 
 
