@@ -4,27 +4,42 @@ from zad2testy import runtests
 
 
 def depth(L):
+    groups = []
+    sort(L, 0, len(L) - 1)
+    for interval in L:
+        flag = 1
+        for group in groups:
+            if interval[0] >= group[0][0] and interval[1] <= group[0][1]:
+                flag = 0
+                group[1] += 1
+        if flag:
+            groups.append([interval, 0])
+    return max([i[1] for i in groups])
 
 
-
-# będę sortował tablicę dwuwymiarową, key jest indeksem wartości w drugim wymiarze względem której sortuje
-def quicksort(array: list, start: int, end: int, key: int):
+# ten konkretny sort będzie sortował według key = lambda x: x[1] - x[0], reverse = True
+# bo tak najlepiej w przypadku mojego algorytmu
+# jest to połączenie quick sort i insertion sort, dla fragmentu tablicy do posortowania < 18 przechodzi na insertion
+# liczba 18 wybrana arbitralnie, według testów dla 18 właśnie jest najszybciej
+def sort(arr: list, start: int, end: int):
     while start < end:
-        pivot = (end - start + 1) // 2 + start  # środkowy element jako pivot
-        array[pivot], array[end] = array[end], array[pivot]
-        pivot_start = end  # w celu poprawienia czasu nie będę sortował elementów równych pivotowi
-        pivot_end = end  # w celu poprawienia czasu nie będę sortował elementów równych pivotowi
-        j = start  # miejsce, w które wstawić następny element mniejszy od pivot
-        for i in range(start, end):
-            if array[i][key] < array[end][key]:
-                array[i], array[j] = array[j], array[i]
-                j += 1
-            elif array[i][key] == array[end][key]:
-                array[i], array[pivot_start - 1] = array[pivot_start - 1], array[i]
-        array[j], array[end] = array[end], array[j]  # teraz element pivot pod indeksem j
-        pivot = j  # indeks pivot teraz jest tam, gdzie element pivot
-        quicksort(array, start, pivot - 1, key)
-        start = pivot + 1
+        if end - start < 18:
+            for i in range(start + 1, end + 1):
+                while i > start and arr[i][1] - arr[i][0] > arr[i - 1][1] - arr[i - 1][0]:
+                    arr[i], arr[i - 1] = arr[i - 1], arr[i]
+                    i -= 1
+            return
+        else:
+            pivot = start + (end - start) // 2
+            arr[pivot], arr[end] = arr[end], arr[pivot]
+            j = start
+            for i in range(start, end):
+                if arr[i][1] - arr[i][0] > arr[end][1] - arr[end][0]:
+                    arr[i], arr[j] = arr[j], arr[i]
+                    j += 1
+            arr[j], arr[end] = arr[end], arr[j]
+            sort(arr, start, j - 1)
+            start = j + 1
 
 
 runtests( depth )
