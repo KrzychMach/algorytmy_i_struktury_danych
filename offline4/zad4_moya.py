@@ -16,7 +16,7 @@ from zad4testy import runtests
 # w związku z czym nigdy nie obliczam funkcji rec() więcej niż raz dla danych argumentów - funkcja rec nie obliczy się
 # więcej niż n*p razy
 #
-# Ostateczne rozwiązanie: O(nlogn + np)
+# Ostateczne rozwiązanie: (nlogn + np)
 
 
 def select_buildings(T,p):
@@ -67,5 +67,6 @@ def select_buildings(T,p):
             curr_arr = new
 
     return curr_arr
+
 
 runtests( select_buildings )
