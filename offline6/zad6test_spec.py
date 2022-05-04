@@ -1,6 +1,6 @@
 # zad6test_spec.py
 
-ALLOWED_TIME = 1000
+ALLOWED_TIME = 1
 
 
 # format testów
