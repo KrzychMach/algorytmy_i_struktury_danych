@@ -4,7 +4,7 @@ from zad7testy import runtests
 
 # szukam de facto cyklu Hamiltona z dodatkowymi warunkami
 # Sprawdzam wszystkie możliwe ścieżki, czyli permutacje wierzchołków,
-# i zwracam pierwszą znalezioną
+# i zwracam pierwszą znalezioną poprawną ścieżkę
 
 # złożoność: O(V!)
 
@@ -14,12 +14,11 @@ from zad7testy import runtests
 
 def droga(G):
     n = len(G)
-
-    visited = [False for i in range(n)]
+    visited = [False] * n
     visited[0] = True
-    path = [0 for i in range(n)]
+    path = [0] * n
 
-    def hamilton(i, v, direction, initial_dir):
+    def hamilton(i=0, v=0, direction=0):
         """
         Zwraca True, jeżeli udało się znaleźć poprawną ścieżkę, w przeciwnym wypadku False
         """
@@ -27,7 +26,7 @@ def droga(G):
         path[i] = v
 
         if i == n - 1:
-            if 0 in G[v][direction] and v in G[0][1 - initial_dir]:
+            if 0 in G[v][direction] and v in G[0][1]:
                 return True
             else:
                 return False
@@ -36,18 +35,13 @@ def droga(G):
             if not visited[neighbor]:
                 next_direction = 1 if v in G[neighbor][0] else 0
                 visited[neighbor] = True
-                if hamilton(i + 1, neighbor, next_direction, initial_dir):
+                if hamilton(i + 1, neighbor, next_direction):
                     return True
                 visited[neighbor] = False
 
         return False
 
-    for i in (0, 1):
-        ans = hamilton(0, 0, i, i)
-        if ans:
-            return path
-
-    return None
+    return path if hamilton() else None
 
 
 # zmien all_tests na True zeby uruchomic wszystkie testy
