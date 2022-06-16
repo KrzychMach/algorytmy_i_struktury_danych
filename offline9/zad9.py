@@ -1,49 +1,16 @@
+# Krzysztof Mach
 from zad9testy import runtests
 from collections import deque
 
 
-def ff15(G, s):
-    residual_g = [[G[i][j] for j in range(len(G))] for i in range(len(G))]
-    total = 0
-    q = deque()
-
-    while True:
-        visited = [False] * len(G)
-        path = [None] * len(G)
-        q.append(s)
-        visited[s] = True
-
-        found_path = False
-        while q:
-            v = q.popleft()
-            if residual_g[v][-1]:
-                path[-1] = v
-                found_path = True
-                q.clear()
-                break
-            for u in range(len(G) - 1):
-                if not visited[u] and residual_g[v][u]:
-                    visited[u] = True
-                    path[u] = v
-                    q.append(u)
-        if found_path is False:
-            return total
-
-        curr_flow = float('inf')
-        v = path[-1]
-        while path[v] is not None:
-            curr_flow = min(curr_flow, residual_g[path[v]][v])
-            v = path[v]
-
-        v = path[-1]
-        while path[v] is not None:
-            residual_g[path[v]][v] -= curr_flow
-            v = path[v]
-
-        total += curr_flow
+"""
+Brute force, dla każdych 2 wierzchołków sprawdzam max flow, zwracam największy
+złożoność: O(V^3 * E^2)
+"""
 
 
 def maxflow(G, s):
+    q = deque()
     n = max(max(i[0], i[1]) for i in G) + 1
     mac_g = [[0 for j in range(n + 1)] for i in range(n + 1)]
     for v, u, f in G:
@@ -58,9 +25,46 @@ def maxflow(G, s):
             if u == s:
                 continue
             mac_g[u][-1] = 1
-            flow = ff15(mac_g, s)
-            if flow > max_flow:
-                max_flow = flow
+
+            residual_g = [mac_g[i][:] for i in range(n + 1)]
+            total = 0
+
+            while True:
+                visited = [False] * len(mac_g)
+                path = [-1] * len(mac_g)
+                q.append(s)
+                visited[s] = True
+
+                while q:
+                    x = q.popleft()
+                    if residual_g[x][-1]:
+                        path[-1] = x
+                        q.clear()
+                        break
+                    for y in range(len(mac_g) - 1):
+                        if not visited[y] and residual_g[x][y]:
+                            visited[y] = True
+                            path[y] = x
+                            q.append(y)
+                else:
+                    break
+
+                curr_flow = float('inf')
+                x = path[-1]
+                while path[x] != -1:
+                    curr_flow = min(curr_flow, residual_g[path[x]][x])
+                    x = path[x]
+
+                x = path[-1]
+                while path[x] != -1:
+                    residual_g[path[x]][x] -= curr_flow
+                    x = path[x]
+
+                total += curr_flow
+
+            if total > max_flow:
+                max_flow = total
+
             mac_g[u][-1] = 0
         mac_g[v][-1] = 0
     return max_flow
