@@ -1,72 +1,57 @@
-# Krzysztof Mach
-
 from zad4testy import runtests
 
-# tworzę nową tablicę indeksów, którą sortuję według punktu startowego elemetu tablicy T odpowiadającemu danemu indeksowi
-# sortowanie: nlogn
-# do elementów T będę odwoływał się przez tę tablicę (np. new_arr=[1, 0]: T[new_arr[0]] == T[1]
-# nie zmienia to tablicy wejściowej a jest lepsze pamięciowo niż kopiowanie jej i sortowanie
-# następnie dla każdego elementu wywołuję funkcję rec(), która to funkcja liczy tablicę o najwyższej możliwej sumie,
-# jaka może powstać, jeżeli dany element weźmiemy do sumy, sprawdzam które wywołanie daje najwyższą sumę i tablicę z
-# tego wywołania zwracam
-#
-# Powyższe rozwiązanie (bez dynamicznego): O(nlogn + 2^n)
-#
-# Przy pomocy tablicy f zapamiętuje wynik funkcji rec() dla danego elementu z danym pozostałym budżetem,
-# w związku z czym nigdy nie obliczam funkcji rec() więcej niż raz dla danych argumentów - funkcja rec nie obliczy się
-# więcej niż n*p razy
-#
-# Ostateczne rozwiązanie: (nlogn + np)
+
+# f(b, i) = max(
+#               f(b - 1, i)
+#               f(b, i - 1)
+#               f(b - w[i], p[i]) + s[i]
+# ); b >= 0 and i >= 0
+# f(b, i) = 0; b < 0 or i < 0
+
+# gdzie b oznacza obecny budżet, i oznacza obecny akademik,
+# w[i] oznacza cenę obecnego akademika
+# p[i] oznacza najbliższy akademik od lewej, który nie pokrywa się z obecnym
+# s[i] oznacza ilość studentów, która mieści się w obecnym akademiku
 
 
-def select_buildings(T,p):
+def select_buildings(T, p):
     n = len(T)
+    T = [(T[i][0], T[i][1], T[i][2], T[i][3], i) for i in range(n)]
+    T.sort(key=lambda x: x[2])
 
-    # tablica indeksów
-    new_arr = [i for i in range(n)]
-    new_arr.sort(key=lambda x: T[x][1])
+    f = [[[0, []] for j in range(p + 1)] for i in range(n)]
 
-    # tablica do spamiętywania wyników
-    f = [[None for w in range(p + 1)] for i in range(n)]
+    left_neighbour = [-1] * n
+    for i in range(1, n):
+        for j in range(i - 1, -1, -1):
+            if T[j][2] < T[i][1]:
+                left_neighbour[i] = j
+                break
 
-    def rec(index, w):
-        # Sprawdzam, czy już policzone
-        if f[index][w] is not None:
-            return f[index][w]
+    for k in range(p + 1):
+        if T[0][3] <= k:
+            f[0][k][0] = T[0][0] * (T[0][2] - T[0][1])
+            f[0][k][1] = [T[0][-1]]
 
-        # graniczne przypadki
-        if w < T[new_arr[index]][3]:
-            f[index][w] = []
-            return []
-        if index == n - 1:
-            f[index][w] = [new_arr[index]]
-            return [new_arr[index]]
+    for i in range(1, n):
+        for k in range(p + 1):
+            capacity = T[i][0] * (T[i][2] - T[i][1])
+            cost = T[i][3]
 
-        # pozostałe przypadki
-        max_sum = 0
-        curr_arr = []
-        for i in range(index + 1, n):
-            if T[new_arr[index]][2] < T[new_arr[i]][1]:
-                new = rec(i, w - T[new_arr[index]][3])
-                new_sum = sum(T[j][0] * (T[j][2] - T[j][1]) for j in new)
-                if new_sum > max_sum:
-                    max_sum = new_sum
-                    curr_arr = new
-        max_arr = curr_arr.copy()
-        max_arr.append(new_arr[index])
-        f[index][w] = max_arr
-        return max_arr
+            f[i][k][0] = f[i - 1][k][0]
+            f[i][k][1] = f[i - 1][k][1][:]
 
-    max_sum = 0
-    curr_arr = []
-    for i in range(0, n):
-        new = rec(i, p)
-        new_sum = sum(T[j][0] * (T[j][2] - T[j][1]) for j in new)
-        if new_sum > max_sum:
-            max_sum = new_sum
-            curr_arr = new
+            if cost <= k:
+                if f[i][k][0] < capacity:
+                    f[i][k][0] = capacity
+                    f[i][k][1] = [T[i][-1]]
 
-    return curr_arr
+                if left_neighbour[i] != -1 and f[i][k][0] < f[left_neighbour[i]][k - cost][0] + capacity:
+                    f[i][k][0] = f[left_neighbour[i]][k - cost][0] + capacity
+                    f[i][k][1] = f[left_neighbour[i]][k - cost][1][:]
+                    f[i][k][1].append(T[i][-1])
+
+    return f[n - 1][p][1]
 
 
-runtests( select_buildings )
+runtests(select_buildings)

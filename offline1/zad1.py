@@ -6,11 +6,6 @@
 from zad1testy import Node, runtests
 
 
-"""
-test gita kurwa
-"""
-
-
 def SortH(p, k):
     if p is None or k == 0:
         return p
